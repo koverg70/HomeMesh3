@@ -21,6 +21,8 @@
 #define SCHEDULE_PIN 	14	// the relay pin
 #if NODE_ID >= 10 && NODE_ID < 20
 #define DHT22_PIN 		8 	// small sensor node 10..19 (RFTempSens kapcsolás)
+#define ONEWIRE_PIN		2
+#define ONEWIRE_MAX		5
 #define NRF24_CE_PIN	9
 #define NRF24_CS_PIN	10
 #else
@@ -59,6 +61,9 @@ RF24Mesh mesh(radio,network);
 //#include "Components/ethernet.h"
 //#include "Components/wifi.h"
 #else
+#ifdef ONEWIRE_PIN
+#include "OneWire.h"
+#endif
 #include "Components/sensors.h"
 #ifdef SCHEDULE_PIN
 #include "Components/schedule.h"

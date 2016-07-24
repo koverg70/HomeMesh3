@@ -8,6 +8,147 @@
 #ifndef SENSORS_H_
 #define SENSORS_H_
 
+#ifdef ONEWIRE_PIN
+
+class Sensor /* hold info for a DS18 class digital temperature sensor */
+{
+public:
+	byte addr[8];
+	boolean parasite;
+	float temp;
+
+};
+
+// OneWire commands
+#define CONVERT_T       0x44  // Tells device to take a temperature reading and put it on the scratchpad
+#define COPYSCRATCH     0x48  // Copy EEPROM
+#define READSCRATCH     0xBE  // Read EEPROM
+#define WRITESCRATCH    0x4E  // Write to EEPROM
+#define RECALLSCRATCH   0xB8  // Reload from last known
+#define READPOWERSUPPLY 0xB4  // Determine if device needs parasite power
+#define ALARMSEARCH     0xEC  // Query bus for devices with an alarm condition
+
+// Model IDs
+#define DS18S20      0x10
+#define DS18B20      0x28
+#define DS1822       0x22
+
+byte data[12];
+byte addr[8];
+OneWire ds(ONEWIRE_PIN); // DS18S20 Temperature chip i/o
+Sensor DS[ONEWIRE_MAX]; /* array of digital sensors */
+
+byte sensors = 0;
+
+void initDS(void) {
+	byte i;
+	byte present = 0;
+	// initialize inputs/outputs
+	// start serial port
+	sensors = 0;
+	printf("Searching for sensors...\r\n");
+	while (ds.search(addr)) {
+		if (OneWire::crc8(addr, 7) != addr[7]) {
+			printf("CRC is not valid!\n");
+			break;
+		}
+		delay(1000);
+		ds.write(READPOWERSUPPLY);
+		boolean parasite = !ds.read_bit();
+		present = ds.reset();
+		printf("temp%d: ", sensors);
+		DS[sensors].parasite = parasite;
+		for (i = 0; i < 8; i++) {
+			DS[sensors].addr[i] = addr[i];
+			printf("%x ", addr[i]);
+		}
+		if (addr[0] == DS18S20) {
+			printf(" DS18S20");
+		} else if (addr[0] == DS18B20) {
+			printf(" DS18B20");
+		} else {
+			printf(" unknown");
+		}
+		if (DS[sensors].parasite) {
+			printf(" parasite");
+		} else {
+			printf(" powered");
+		}
+		printf("\r\n");
+		sensors++;
+	}
+	printf("%d sensors found\r\n", sensors);
+	printf("OneWire pin: %d\r\n", ONEWIRE_PIN);
+	for (i = 0; i < sensors; i++) {
+		printf("temp%d", i);
+		if (i < sensors - 1) {
+			printf(",");
+		}
+	}
+	printf("\r\n");
+}
+
+void get_ds()
+{
+	byte i, j;
+	boolean ready;
+	int dt;
+	int HighByte, LowByte, TReading, SignBit, Tc_100;
+	byte present = 0;
+	for (i = 0; i < sensors; i++) {
+		ds.reset();
+		ds.select(DS[i].addr);
+		ds.write(CONVERT_T, DS[i].parasite); // start conversion, with parasite power off at the end
+
+		if (DS[i].parasite) {
+			dt = 75;
+			delay(750); /* no way to test if ready, so wait max time */
+		} else {
+			ready = false;
+			dt = 0;
+			delay(10);
+			while (!ready && dt < 75) { /* wait for ready signal */
+				delay(10);
+				ready = ds.read_bit();
+				dt++;
+			}
+		}
+
+		present = ds.reset();
+		ds.select(DS[i].addr);
+		ds.write(READSCRATCH); // Read Scratchpad
+
+		for (j = 0; j < 9; j++) { // we need 9 bytes
+			data[j] = ds.read();
+		}
+
+		/* check for valid data */
+		if ((data[7] == 0x10) || (OneWire::crc8(addr, 8) != addr[8])) {
+			LowByte = data[0];
+			HighByte = data[1];
+			TReading = (HighByte << 8) + LowByte;
+			SignBit = TReading & 0x8000; // test most sig bit
+			if (SignBit) // negative
+			{
+				TReading = (TReading ^ 0xffff) + 1; // 2's comp
+			}
+			if (DS[i].addr[0] == DS18B20) { /* DS18B20 0.0625 deg resolution */
+				Tc_100 = (6 * TReading) + TReading / 4; // multiply by (100 * 0.0625) or 6.25
+			} else if (DS[i].addr[0] == DS18S20) { /* DS18S20 0.5 deg resolution */
+				Tc_100 = (TReading * 100 / 2);
+			}
+
+			if (SignBit) {
+				DS[i].temp = -(float) Tc_100 / 100;
+			} else {
+				DS[i].temp = (float) Tc_100 / 100;
+			}
+		} else { /* invalid data (e.g. disconnected sensor) */
+			DS[i].temp = NAN;
+		}
+	}
+}
+#endif
 
 class Sensors: public ITask
 {
@@ -28,6 +169,7 @@ public:
     	digitalWrite(3, LOW);
     	digitalWrite(4, HIGH);
     	digitalWrite(5, HIGH);
+    	initDS();
 	}
 
 	const char *name() { return "Sensors"; };
@@ -52,6 +194,19 @@ public:
 			ok &= mesh.write(&payload, 'V', sizeof(payload), nodeId);
 
 			printf("Temperature: %d, Humidity: %d, ", temperature, humidity);
+#endif
+
+#ifdef ONEWIRE_PIN
+			if (sensors > 0) {
+				get_ds();
+				for (int i=0; i<sensors; ++i) {
+					payload[0] = 'B' + i;
+					uint16_t temperature = (int16_t) (DS[i].temp * 100);
+					*((uint16_t *)(payload + 1)) = temperature;
+					ok &= mesh.write(&payload, 'V', sizeof(payload), nodeId);
+					printf("DS18B20 temperature: %d, ", temperature);
+				}
+			}
 #endif
 
 			// FIXIT: a státusz (ok) kezelése
