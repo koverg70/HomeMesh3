@@ -10,8 +10,10 @@
 
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
+extern "C" {
 #include "user_interface.h"
 #include "daylight.h"
+}
 
 #define SYNC_INTERVAL_MS	(10*60)	// check time server every 10 minutes
 const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes of the message
@@ -74,6 +76,7 @@ public:
 				  Serial.println("WiFi connected");
 				  Serial.println("IP address: ");
 				  Serial.println(WiFi.localIP());
+				  printf_P(PSTR("CPU frequency: %d\r\n"), system_get_cpu_freq());
 			    }
 			}
 		}

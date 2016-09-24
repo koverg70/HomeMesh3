@@ -3,9 +3,6 @@
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="it.baeyens.arduino.core.toolChain.release.1990652656">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="it.baeyens.arduino.core.toolChain.release.1990652656" moduleId="org.eclipse.cdt.core.settings" name="Node_1">
-				<macros>
-					<stringMacro name="NODE_ID" type="VALUE_TEXT" value="1"/>
-				</macros>
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -31,6 +28,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24/utility}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Network}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/SPI/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/OneWire}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.1789832880" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
@@ -45,6 +43,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24/utility}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Network}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/SPI/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/OneWire}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.c.sketch.input.163546948" name="C Source Files" superClass="it.baeyens.arduino.compiler.c.sketch.input"/>
 							</tool>
@@ -64,9 +63,6 @@
 		</cconfiguration>
 		<cconfiguration id="it.baeyens.arduino.core.toolChain.release.1990652656.535330854">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="it.baeyens.arduino.core.toolChain.release.1990652656.535330854" moduleId="org.eclipse.cdt.core.settings" name="Master">
-				<macros>
-					<stringMacro name="NODE_ID" type="VALUE_TEXT" value="0"/>
-				</macros>
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -86,6 +82,13 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/SPI}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/Time}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Mesh}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/SPI/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24/utility}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/OneWire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Network}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.1064844974" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
@@ -94,6 +97,13 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/SPI}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/Time}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Mesh}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/SPI/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24/utility}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/OneWire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Network}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.c.sketch.input.173686418" name="C Source Files" superClass="it.baeyens.arduino.compiler.c.sketch.input"/>
 							</tool>
@@ -101,12 +111,11 @@
 							<tool id="it.baeyens.arduino.tool.ar.1430106326" name="Arduino archiver" superClass="it.baeyens.arduino.tool.ar"/>
 							<tool id="it.baeyens.arduino.tool.combine.1242867297" name="Arduino combiner" superClass="it.baeyens.arduino.tool.combine"/>
 							<tool id="it.baeyens.arduino.tool.objcopy.eep.345994227" name="Arduino tool Create eeprom" superClass="it.baeyens.arduino.tool.objcopy.eep"/>
-							<tool id="it.baeyens.arduino.tool.objcopy.flash.381921515" name="Arduino tool Create hex" superClass="it.baeyens.arduino.tool.objcopy.flash"/>
 							<tool id="it.baeyens.arduino.tool.size.1400057503" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libraries/ESP8266WiFi|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries**/._*" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="libraries/ESP8266WebServer|libraries/ESP8266mDNS|libraries/RF24Mesh/examples_RPi|libraries/RF24Network/RPi|libraries/RF24Network/examples_RPi|libraries/RF24/utility|libraries/RF24/RPi|libraries/RF24/examples_RPi|libraries/ESP8266WiFi|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries**/._*" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -114,9 +123,6 @@
 		</cconfiguration>
 		<cconfiguration id="it.baeyens.arduino.core.toolChain.release.1990652656.535330854.338778429">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="it.baeyens.arduino.core.toolChain.release.1990652656.535330854.338778429" moduleId="org.eclipse.cdt.core.settings" name="Master_ESP">
-				<macros>
-					<stringMacro name="NODE_ID" type="VALUE_TEXT" value="0"/>
-				</macros>
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -146,6 +152,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Network}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Mesh}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/Time}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/OneWire}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.860275602" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
@@ -164,6 +171,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Network}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Mesh}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/Time}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/OneWire}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.c.sketch.input.1736310692" name="C Source Files" superClass="it.baeyens.arduino.compiler.c.sketch.input"/>
 							</tool>
@@ -174,8 +182,13 @@
 							<tool id="it.baeyens.arduino.tool.size.1085340548" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="it.baeyens.arduino.core.toolChain.release.1990652656.535330854.338778429.1997883616" name="ethernet.h" rcbsApplicability="disable" resourcePath="Components/ethernet.h" toolsToInvoke=""/>
+					<fileInfo id="it.baeyens.arduino.core.toolChain.release.1990652656.535330854.338778429.1930795794" name="ip_arp_udp_tcp.h" rcbsApplicability="disable" resourcePath="EtherShield/ip_arp_udp_tcp.h" toolsToInvoke=""/>
+					<fileInfo id="it.baeyens.arduino.core.toolChain.release.1990652656.535330854.338778429.1691070410" name="enc28j60.h" rcbsApplicability="disable" resourcePath="EtherShield/enc28j60.h" toolsToInvoke=""/>
+					<fileInfo id="it.baeyens.arduino.core.toolChain.release.1990652656.535330854.338778429.1941023707" name="net.h" rcbsApplicability="disable" resourcePath="EtherShield/net.h" toolsToInvoke=""/>
+					<fileInfo id="it.baeyens.arduino.core.toolChain.release.1990652656.535330854.338778429.989532533" name="etherShield.h" rcbsApplicability="disable" resourcePath="EtherShield/etherShield.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="libraries/Time/Time.h|libraries/RF24Network/RPi|libraries/RF24Network/examples_RPi|libraries/RF24Mesh/examples_RPi|libraries/RF24/utility|libraries/RF24/RPi|libraries/RF24/examples_RPi|DHT/dht.cpp|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries**/._*" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Components/ethernet.h|EtherShield/net.h|EtherShield/ip_arp_udp_tcp.h|EtherShield/ip_arp_udp_tcp.c|EtherShield/etherShield.h|EtherShield/etherShield.cpp|EtherShield/enc28j60.h|EtherShield/enc28j60.c|libraries/Time/Time.h|libraries/RF24Network/RPi|libraries/RF24Network/examples_RPi|libraries/RF24Mesh/examples_RPi|libraries/RF24/utility|libraries/RF24/RPi|libraries/RF24/examples_RPi|DHT/dht.cpp|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries**/._*" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -183,9 +196,6 @@
 		</cconfiguration>
 		<cconfiguration id="it.baeyens.arduino.core.toolChain.release.1990652656.930333027">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="it.baeyens.arduino.core.toolChain.release.1990652656.930333027" moduleId="org.eclipse.cdt.core.settings" name="Node_10">
-				<macros>
-					<stringMacro name="NODE_ID" type="VALUE_TEXT" value="1"/>
-				</macros>
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -205,6 +215,13 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/SPI}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/Time}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Mesh}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24/utility}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/OneWire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Network}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/SPI/src}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.402969780" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
@@ -213,6 +230,13 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/core/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/core/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/SPI}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/Time}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Mesh}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24/utility}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/OneWire}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/RF24Network}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/HomeMesh3/libraries/SPI/src}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.c.sketch.input.67969245" name="C Source Files" superClass="it.baeyens.arduino.compiler.c.sketch.input"/>
 							</tool>
@@ -220,12 +244,11 @@
 							<tool id="it.baeyens.arduino.tool.ar.1360553991" name="Arduino archiver" superClass="it.baeyens.arduino.tool.ar"/>
 							<tool id="it.baeyens.arduino.tool.combine.1851134218" name="Arduino combiner" superClass="it.baeyens.arduino.tool.combine"/>
 							<tool id="it.baeyens.arduino.tool.objcopy.eep.1811890592" name="Arduino tool Create eeprom" superClass="it.baeyens.arduino.tool.objcopy.eep"/>
-							<tool id="it.baeyens.arduino.tool.objcopy.flash.882883116" name="Arduino tool Create hex" superClass="it.baeyens.arduino.tool.objcopy.flash"/>
 							<tool id="it.baeyens.arduino.tool.size.657802360" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size"/>
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="libraries/ESP8266WiFi|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries**/._*" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="libraries/ESP8266WebServer|libraries/ESP8266mDNS|libraries/RF24Mesh/examples_RPi|libraries/RF24Network/RPi|libraries/RF24Network/examples_RPi|libraries/RF24/examples_RPi|libraries/RF24/utility|libraries/RF24/RPi|libraries/ESP8266WiFi|libraries/?*/**/?xamples/**|libraries/?*/**/?xtras/**|libraries/?*/**/test*/**|libraries/?*/**/third-party/**|libraries**/._*" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -250,4 +273,5 @@
 			<resource resourceType="PROJECT" workspacePath="/HomeMesh3"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

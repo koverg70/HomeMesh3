@@ -156,7 +156,7 @@ private:
 	uint16_t childRefresh;			// frequency of send data to targetNode
 	uint8_t nodeId;					// the target node to send sensor values to
 	unsigned long lastSendMillis;	// last time the sensor data was send
-#ifdef DHT22_PIN
+#if defined(DHT22_PIN) || defined(DHT11_PIN)
 	dht dht_sensor;
 #endif
 
@@ -169,7 +169,9 @@ public:
     	digitalWrite(3, LOW);
     	digitalWrite(4, HIGH);
     	digitalWrite(5, HIGH);
+#ifdef ONEWIRE_PIN
     	initDS();
+#endif
 	}
 
 	const char *name() { return "Sensors"; };
@@ -181,8 +183,12 @@ public:
 			boolean ok = true;
 
 #ifdef DHT22_PIN
-			uint8_t payload[3];
 			dht_sensor.read22(DHT22_PIN);
+#elif DHT11_PIN
+			dht_sensor.read11(DHT11_PIN);
+#endif
+#if defined(DHT22_PIN) || defined(DHT11_PIN)
+			uint8_t payload[3];
 			payload[0] = 'A';
 			uint16_t temperature = (int16_t)(dht_sensor.temperature * 100);
 			*((uint16_t *)(payload + 1)) = temperature;

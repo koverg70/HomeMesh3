@@ -62,9 +62,13 @@ public:
 					buffer[0] = 'S';
 					memcpy(buffer+1, &currentTime, sizeof(currentTime));
 					uint8_t nodeId = mesh.getNodeID(header.from_node);
-					delay(50);	// FIXIT: queue?
-					boolean ok = mesh.write(buffer, 'T', sizeof(buffer), nodeId);
-					printf_P(PSTR("Time sent to %d. Result: %d\r\n"), nodeId, ok);
+					if (nodeId >= 0) {
+						delay(50);	// FIXIT: queue?
+						boolean ok = mesh.write(buffer, 'T', sizeof(buffer), nodeId);
+						printf_P(PSTR("Time sent to nodeId: %d. Result: %d\r\n"), nodeId, ok);
+					} else {
+						printf_P(PSTR("Time not sent, invalid address: %#o\r\n"), header.from_node);
+					}
 				}
 			}
 			return true;
@@ -90,8 +94,8 @@ public:
 					{
 						uint8_t buffer[1];
 						buffer[0] = 'G';
-						mesh.write(buffer, 'T', sizeof(buffer), timeServerNode);
-						printf_P(PSTR("Time request sent to node: %d\r\n"), timeServerNode);
+						bool res = mesh.write(buffer, 'T', sizeof(buffer), timeServerNode);
+						printf_P(PSTR("Time request sent to node: %d, result: %d\r\n"), timeServerNode, res);
 						lastCheck = millis();
 						checkCount++;
 					}

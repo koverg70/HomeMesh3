@@ -63,6 +63,7 @@ public:
 
     virtual boolean begin(void) {
     	pinMode(SCHEDULE_PIN, OUTPUT);
+    	return true;
     }
 
 	uint8_t calcQuarter(time_t currentTime)

@@ -20,7 +20,11 @@
 #if NODE_ID != 0
 #define SCHEDULE_PIN 	14	// the relay pin
 #if NODE_ID >= 10 && NODE_ID < 20
-#define DHT22_PIN 		8 	// small sensor node 10..19 (RFTempSens kapcsolás)
+#if NODE_ID > 15
+	#define DHT11_PIN 		8 	// small sensor node 10..19 (RFTempSens kapcsolás)
+#else
+	#define DHT22_PIN 		8 	// small sensor node 10..19 (RFTempSens kapcsolás)
+#endif
 #define ONEWIRE_PIN		2
 #define ONEWIRE_MAX		5
 #define NRF24_CE_PIN	9
@@ -32,17 +36,19 @@
 #endif
 #endif
 #if NODE_ID == 0
-// Mega 2560
-//#define NRF24_CE_PIN	48
-//#define NRF24_CS_PIN	SS
-
 // Atmega 328
 //#define NRF24_CE_PIN	9
 //#define NRF24_CS_PIN	10
 
 // ESP8266
+#ifdef ESP8266
 #define NRF24_CE_PIN	5
 #define NRF24_CS_PIN	15
+#else
+// Mega 2560
+#define NRF24_CE_PIN	48
+#define NRF24_CS_PIN	SS
+#endif
 
 #endif
 
@@ -56,10 +62,14 @@ RF24Mesh mesh(radio,network);
 
 #if NODE_ID == 0
 #include "Components/master.h"
+#ifdef ESP8266
 #include "Components/esp8266_ntp.h"
 #include "Components/esp8266_web.h"
-//#include "Components/ethernet.h"
+#else
+#include "EtherShield/etherShield.h"
+#include "Components/ethernet.h"
 //#include "Components/wifi.h"
+#endif
 #else
 #ifdef ONEWIRE_PIN
 #include "OneWire.h"
@@ -120,10 +130,13 @@ void setup() {
 #if NODE_ID == 0
 	Master *master = new Master();
 	addTask(master);					// TODO: where to store received data
+#ifdef ESP8266
 	addTask(new ESP8266Ntp());
 	addTask(new ESP8266Web(master->getSensors()));
+#else
 //	addTask(new Wifi(master->getSensors()));
-//	addTask(new Ethernet(master->getSensors()));
+	addTask(new Ethernet(master->getSensors()));
+#endif
 #else
 	addTask(new Sensors(0));				// the target node to send sensor data to
 #endif

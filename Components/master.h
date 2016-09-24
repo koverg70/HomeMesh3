@@ -79,37 +79,42 @@ public:
 
 	SensorData *storeData(RF24NetworkHeader header, uint8_t *payload) {
 		SensorData *sd = new SensorData();
-		sd->nodeId = mesh.getNodeID(header.from_node);
-		sd->sensorType = (char)payload[0];
-		sd->value = payload[2]*256+payload[1];		// TODO: platform independent solution, this not ok on xtensa *((uint16_t *)(payload + 1));
-		sd->extra = 0;
-		sd->lastUpdate = now();
-		//char buffer[30];
-		//ITask::timeToText(now(), buffer);
-	    //printf_P(PSTR("Time: %s Node:%d sensor:%c value:%d\r\n"), buffer, sd->nodeId, sd->sensorType, sd->value);
-	    int i;
+		uint16_t nodeId = mesh.getNodeID(header.from_node);
+		if (nodeId > 0) {
+			sd->nodeId = nodeId;
+			sd->sensorType = (char)payload[0];
+			sd->value = payload[2]*256+payload[1];		// TODO: platform independent solution, this not ok on xtensa *((uint16_t *)(payload + 1));
+			sd->extra = 0;
+			sd->lastUpdate = now();
+			//char buffer[30];
+			//ITask::timeToText(now(), buffer);
+			//printf_P(PSTR("Time: %s Node:%d sensor:%c value:%d\r\n"), buffer, sd->nodeId, sd->sensorType, sd->value);
+			int i;
 
-	    boolean sensorStored = false;
-		for (i = 0; i < sensorCount; ++i) {
-			if (sensors[i]->nodeId == sd->nodeId && sensors[i]->sensorType == sd->sensorType) {
-				if (sensors[i] != NULL) {
-					delete sensors[i];
+			boolean sensorStored = false;
+			for (i = 0; i < sensorCount; ++i) {
+				if (sensors[i]->nodeId == sd->nodeId && sensors[i]->sensorType == sd->sensorType) {
+					if (sensors[i] != NULL) {
+						delete sensors[i];
+					}
+					sensors[i] = sd;
+					sensorStored = true;
 				}
-				sensors[i] = sd;
-				sensorStored = true;
 			}
-		}
-		if (! sensorStored) {
-			if (sensorCount < maxSensors) {
-				sensors[sensorCount++] = sd;
-				sensorStored = true;
+			if (! sensorStored) {
+				if (sensorCount < maxSensors) {
+					sensors[sensorCount++] = sd;
+					sensorStored = true;
+				}
+				// new sensor detected, we should update node list
+				updateNodes();
 			}
-			// new sensor detected, we should update node list
-			updateNodes();
-		}
 
-		if (sensorStored) {
-			return sd;
+			if (sensorStored) {
+				return sd;
+			} else {
+				return NULL;
+			}
 		} else {
 			return NULL;
 		}
@@ -145,7 +150,7 @@ public:
 
 	boolean receiveMessage(RF24NetworkHeader header, uint8_t *payload) {
 		if (header.type == 'V') {
-		  //printf_P(PSTR("Received sensor from device:%#o sensor:%c value:%d\r\n"), header.from_node, (char)payload[0], *((uint16_t *)(payload + 1)));
+		  printf_P(PSTR("Received sensor from nodeId:%d address:%#o sensor:%c value:%d\r\n"), mesh.getNodeID(header.from_node), header.from_node, (char)payload[0], payload[2]*256+payload[1]);
 		  if (sensorStore != NULL) {
 			  SensorData *sd = sensorStore->storeData(header, payload);
 			  if (sd == NULL) {
@@ -164,26 +169,26 @@ public:
 	const char *name() { return "Master"; };
 
 	void updateState() {
-		  if(millis() - addressTimer > 15000){
+		  if(millis() - addressTimer > 3000){
 			addressTimer = millis();
 			 for(int i=0; i<mesh.addrListTop; i++){
 			   printf_P(PSTR("** NodeID: %d RF24Network Address: %o\r\n"), mesh.addrList[i].nodeID, mesh.addrList[i].address);
 			 }
-			 printf_P(PSTR("Node count: %d\r\n"), sensorStore->getNodeCount());
-			 printf_P(PSTR("Sensor count: %d\r\n"), sensorStore->getSensorCount());
-			 for (int i = 0; i < sensorStore->getNodeCount(); ++i)
-			 {
-				 NodeData * node = sensorStore->getNodes()[i];
-				 printf_P(PSTR("Node id:%d address:%o, sensorCount:%d\r\n"), node->nodeId, node->nodeAddress, node->sensorCount);
-			 }
-			 for (int i = 0; i < sensorStore->getSensorCount(); ++i)
-			 {
-				 SensorData * sensor = sensorStore->getSensors()[i];
-				 char buffer[30];
-				 ITask::timeToText(sensor->lastUpdate, buffer);
-				 printf_P(PSTR("Sensor node id:%d type:%c, value:%d, extra:%d, lastUpdate:%s\r\n"),
-				   sensor->nodeId, sensor->sensorType, sensor->value, sensor->extra, buffer);
-			 }
+//			 printf_P(PSTR("Node count: %d\r\n"), sensorStore->getNodeCount());
+//			 printf_P(PSTR("Sensor count: %d\r\n"), sensorStore->getSensorCount());
+//			 for (int i = 0; i < sensorStore->getNodeCount(); ++i)
+//			 {
+//				 NodeData * node = sensorStore->getNodes()[i];
+//				 printf_P(PSTR("Node id:%d address:%o, sensorCount:%d\r\n"), node->nodeId, node->nodeAddress, node->sensorCount);
+//			 }
+//			 for (int i = 0; i < sensorStore->getSensorCount(); ++i)
+//			 {
+//				 SensorData * sensor = sensorStore->getSensors()[i];
+//				 char buffer[30];
+//				 ITask::timeToText(sensor->lastUpdate, buffer);
+//				 printf_P(PSTR("Sensor node id:%d type:%c, value:%d, extra:%d, lastUpdate:%s\r\n"),
+//				   sensor->nodeId, sensor->sensorType, sensor->value, sensor->extra, buffer);
+//			 }
 
 			// --- debug get time and set schedule on node 1 (bathroom sensor and ventilating fan)---
 			if (year(now()) <= 2013) {
@@ -194,10 +199,12 @@ public:
 				setTime(23,31,0,1,12,2015);*/
 			}
 			else {
+/*
 				uint8_t buffer[13] = { 'S', 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff };
 				//for (int i = 0; i < 12; ++i) { buffer[1 + i] = 0xff; }
-				mesh.write(buffer, 'S', sizeof(buffer), 1);
-				printf_P(PSTR("SMS: 1.\r\n"));
+				bool res = mesh.write(buffer, 'S', sizeof(buffer), 1);
+				printf_P(PSTR("SMS: %d\r\n"), res);
+*/
 			}
 			// --- debug get time and set schedule ---
 

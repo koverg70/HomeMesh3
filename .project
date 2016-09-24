@@ -34,12 +34,12 @@
 		<link>
 			<name>core/core</name>
 			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/cores/esp8266</location>
+			<location>C:/java/eclipseArduino/arduinoPlugin/packages/arduino/hardware/avr/1.6.11/cores/arduino</location>
 		</link>
 		<link>
 			<name>core/variant</name>
 			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/variants/espino</location>
+			<location>C:/java/eclipseArduino/arduinoPlugin/packages/arduino/hardware/avr/1.6.11/variants/mega</location>
 		</link>
 		<link>
 			<name>libraries/ESP8266WebServer</name>
@@ -55,6 +55,11 @@
 			<name>libraries/ESP8266mDNS</name>
 			<type>2</type>
 			<location>C:/java/eclipseArduino/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266mDNS</location>
+		</link>
+		<link>
+			<name>libraries/OneWire</name>
+			<type>2</type>
+			<location>C:/java/eclipseArduino/arduinoPlugin/libraries/OneWire/2.3.2</location>
 		</link>
 		<link>
 			<name>libraries/RF24</name>
@@ -74,7 +79,7 @@
 		<link>
 			<name>libraries/SPI</name>
 			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/SPI</location>
+			<location>C:/java/eclipseArduino/arduinoPlugin/packages/arduino/hardware/avr/1.6.11/libraries/SPI</location>
 		</link>
 		<link>
 			<name>libraries/Time</name>
