@@ -80,7 +80,7 @@ public:
 	SensorData *storeData(RF24NetworkHeader header, uint8_t *payload) {
 		SensorData *sd = new SensorData();
 		uint16_t nodeId = mesh.getNodeID(header.from_node);
-		if (nodeId > 0) {
+		if ((int)nodeId > 0) {
 			sd->nodeId = nodeId;
 			sd->sensorType = (char)payload[0];
 			sd->value = payload[2]*256+payload[1];		// TODO: platform independent solution, this not ok on xtensa *((uint16_t *)(payload + 1));
@@ -145,7 +145,7 @@ private:
 public:
 	Master() {
 		addressTimer = 0;
-		sensorStore = new SensorStore(15, 5);
+		sensorStore = new SensorStore(25, 5);
 	}
 
 	boolean receiveMessage(RF24NetworkHeader header, uint8_t *payload) {
