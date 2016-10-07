@@ -20,7 +20,7 @@
 #if NODE_ID != 0
 #define SCHEDULE_PIN 	14	// the relay pin
 #if NODE_ID >= 10 && NODE_ID < 20
-#if NODE_ID > 15
+#if NODE_ID >= 15
 	#define DHT11_PIN 		8 	// small sensor node 10..19 (RFTempSens kapcsolás)
 #else
 	#define DHT22_PIN 		8 	// small sensor node 10..19 (RFTempSens kapcsolás)

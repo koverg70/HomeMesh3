@@ -23,11 +23,19 @@ char timeBuff[30];
 
 static time_t startTime = 0;
 
+typedef struct _schedule {
+	uint8_t nodeId;
+	time_t receive;
+	uint8_t buffer[12];
+} Schedule;
+
 class Ethernet : public ITask
 {
 private:
 	SensorStore *sensors;
 	uint32_t addressTimer;
+	Schedule schedule;
+
 public:
 	Ethernet(SensorStore *sensors_) {
 		sensors = sensors_;
@@ -40,8 +48,8 @@ public:
 		es.ES_init_ip_arp_udp_tcp(mymac, myip, 80);
 		es.ES_client_set_gwip(gwip);
 		printf_P(PSTR("mac && ip set\r\n"));
-		setTime(0);
 		delay(2000);
+		setTime(0);
 		es.ES_client_ntp_request(buf, ntpip, 247); // TODO: 25000 was here
 	}
 
@@ -100,72 +108,85 @@ public:
 	{
 		return (es.ES_fill_tcp_data_p(buf, 0, PSTR(
 				"HTTP/1.0 200 OK\r\n"
-				"Content-Type: text/html\r\n"
+				"Content-Type: text/json\r\n"
 				"Pragma: no-cache\r\n"
 				"Access-Control-Allow-Origin: *\r\n"	// needed to allow request from other sites
 				"\r\n")));
 	}
 
-	uint16_t print_webpage(uint8_t *buf)
+	uint16_t print_webpage(uint8_t *buf, uint8_t node_id, const char *stype)
 	{
 		time_t nnn = now();
 		uint16_t plen;
 		plen = http200ok();
-		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("{time: \""));
-		timeDateToText(now(), timeBuff);
+		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("{\"time\": \""));
+		timeDateToText(nnn, timeBuff);
 		plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
-		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", start: \""));
-		ltoa(nnn - startTime, timeBuff, 10);
+		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"start\": \""));
+		timeDateToText(startTime, timeBuff);
 		plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
-		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\""));
+		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"sensors\": ["));
+		int sensCount = 0;
 
 		if (sensors != NULL)
 		{
 			for (int j = 0; j < sensors->getNodeCount(); ++j)
 			{
 				NodeData *node = sensors->getNodes()[j];
-				for (int i = 0; i < sensors->getSensorCount(); ++i)
 				{
-					/*
-					uint8_t		nodeId;			// the node that collected the data
-					char		sensorType;		// A,B,C,D,E,F,G,H,I,J - temperature, X,Y,Z - humidity, 0,1,2,3,4,5,6,7,8,9 - other values
-					time_t 		lastUpdate; 	// the date and time of the last sensor message
-					uint16_t	value;			// the sensor value
-					uint16_t	extra;			// extra data (if value cannot be stored on 16 bit)
-					*/
+					for (int i = 0; i < sensors->getSensorCount(); ++i)
+					{
+						/*
+						uint8_t		nodeId;			// the node that collected the data
+						char		sensorType;		// A,B,C,D,E,F,G,H,I,J - temperature, X,Y,Z - humidity, 0,1,2,3,4,5,6,7,8,9 - other values
+						time_t 		lastUpdate; 	// the date and time of the last sensor message
+						uint16_t	value;			// the sensor value
+						uint16_t	extra;			// extra data (if value cannot be stored on 16 bit)
+						*/
 
 
-					SensorData * sensor = (sensors->getSensors())[i];
-					itoa(i, timeBuff, 10);
-					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(", sensors"));
-					plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
-					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(": {"));
+						SensorData * sensor = (sensors->getSensors())[i];
+						if ((stype == NULL || stype[0] == '*' || stype[0] == sensor->sensorType) && (node_id == 0 || node->nodeId == node_id))
+						{
+							//itoa(i, timeBuff, 10);
+							//plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(", \r\ns"));
+							//plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+							//plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(": {"));
+							if (sensCount++ != 0)
+							{
+								plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(", "));
+							}
+							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\r\n{"));
 
-					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("nodeId: \""));
-					itoa(sensor->nodeId, timeBuff, 10);
-					plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\"n\": \""));
+							itoa(sensor->nodeId, timeBuff, 10);
+							plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
 
-					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", lastUpdate: \""));
-					itoa(nnn - sensor->lastUpdate, timeBuff, 10);
-					plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"lu\": \""));
+							itoa(nnn - sensor->lastUpdate, timeBuff, 10);
+							plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
 
-					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", sensorType: \""));
-					timeBuff[0] = sensor->sensorType;
-					timeBuff[1] = 0;
-					plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"t\": \""));
+							timeBuff[0] = sensor->sensorType;
+							timeBuff[1] = 0;
+							plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
 
-					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", value: \""));
-					itoa(sensor->value, timeBuff, 10);
-					plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"v\": \""));
+							itoa(sensor->value, timeBuff, 10);
+							plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
 
-					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", extra: \""));
-					itoa(sensor->extra, timeBuff, 10);
-					plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"e\": \""));
+							itoa(sensor->extra, timeBuff, 10);
+							plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
 
-					plen = es.ES_fill_tcp_data_p(buf, plen, PSTR("\"}"));
+							plen = es.ES_fill_tcp_data_p(buf, plen, PSTR("\"}"));
+						}
+					}
 				}
 			}
 		}
+
+		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\r\n]}"));
 
 //		plen = es.ES_fill_tcp_data_p(buf, plen, PSTR(", settings: \""));
 //		for (int i = 0; i < SETTINGS_SIZE; ++i)
@@ -187,11 +208,40 @@ public:
 
 
 	boolean receiveMessage(RF24NetworkHeader header, uint8_t *payload) {
-		// it doesn't handle RF24 messages
+		if (header.type == 'S') {	// schedule receive
+			schedule.nodeId = mesh.getNodeID(header.from_node);
+			schedule.receive = now();
+			memcpy(schedule.buffer, payload, sizeof(schedule.buffer));
+		}
 		return false;
 	}
 
 	const char *name() { return "Ethernet"; };
+
+	/**
+	 * Converts the two hexadecimal characters (high digit, low digit) to a byte
+	 */
+	uint8_t hexToBin(char h1, char h2)
+	{
+		uint8_t bin = 0;
+		if ('0' <= h2 && h2 <= '9')
+		{
+			bin += h2-'0';
+		}
+		else if ('a' <= tolower(h2) && tolower(h2) <= 'f')
+		{
+			bin += tolower(h2)-'a'+10;
+		}
+		if ('0' <= h1 && h1 <= '9')
+		{
+			bin += (h1-'0')*16;
+		}
+		else if ('a' <= tolower(h1) && tolower(h1) <= 'f')
+		{
+			bin += (tolower(h1)-'a'+10)*16;
+		}
+		return bin;
+	}
 
 	void updateState() {
 		// ethernet
@@ -224,40 +274,64 @@ public:
 					//Serial.println("Time adjusted with NTP time.");
 				}
 			}
-			else if (strncmp("GET ", (char *) &(buf[dat_p]), 4) == 0)
+			else if (strncmp("GET ", (char *) buf + dat_p, 4) == 0)
 			{
-				// process HTTP request
-				// just one web page in the "root directory" of the web server
-				if (strncmp("/ ", (char *) &(buf[dat_p + 4]), 2) == 0)
+				// sensor values
+				if (strncmp("/V", (char *) buf + dat_p + 4, 2) == 0)
 				{
-					// aktuális státusz visszaküldése
-					dat_p = print_webpage(buf);
+					char sensor[4];
+					uint16_t node_id;
+					sscanf((char *)buf + dat_p + 6, "%d:%3s", &node_id, sensor);
+					dat_p = print_webpage(buf, node_id, sensor);
 				}
-				else if (strncmp("/S-", (char *) &(buf[dat_p + 4]), 3) == 0)
+				else if (strncmp("/S", (char *) buf + dat_p + 4, 2) == 0)
 				{
-					char *p = (char *) &(buf[dat_p + 7]);
-					printf_P(PSTR("\r\nIdõzítések beállítása: %s"),  p);
-					// idõzítések beállítása
-					uint8_t buffer[13];
-					buffer[0] = 'S';
-					for (int i = 0; i < 12; ++i)
+					char hex[30];
+					uint16_t node_id;
+					sscanf((char *)buf + dat_p + 6, "%d:%25s", &node_id, hex);
+					if (hex[0] == 'g' || hex[0] == 'G')
 					{
-						byte b = *(p++);
-						if (b != '0' && b != '1')
+						hex[0] = 'G';
+						if(mesh.write(hex, 'S', 1, node_id))
 						{
-							b = '0';
+							dat_p = http200ok();
+							char buffer[25];
+							for (int i = 0; i < 12; ++i)
+							{
+								sprintf(buffer+2*i, "%02x", *(schedule.buffer + i));
+							}
+							char result[200];
+							timeDateToText(schedule.receive, timeBuff);
+							sprintf(result, "{\"node\":\"%d\", \"time\":\"%s\", \"schedule\":\"%s\"}", schedule.nodeId, timeBuff, buffer);
+							dat_p = es.ES_fill_tcp_data(buf, dat_p, result);
 						}
-						buffer[i+1] = b;
-						//settings[i] = b;
+						else
+						{
+							dat_p = es.ES_fill_tcp_data_p(buf, dat_p, PSTR("<h1>200 SEND ERROR</h1>"));
+						}
 					}
-					mesh.write(buffer, 'S', sizeof(buffer), 1);
-					printf_P(PSTR("Schedule message sent to node: 1.\r\n"));
-					dat_p = http200ok();
-					dat_p = es.ES_fill_tcp_data_p(buf, dat_p, PSTR("<h1>200 OK</h1>"));
+					else if (hex[0] == 's' || hex[0] == 'S')
+					{
+						printf_P(PSTR("\r\nIdõzítések beállítása: node:%d, sched:%s"),  node_id, hex);
+						uint8_t buffer[13];
+						buffer[0] = 'S';
+						for (int i = 0; i < 12; ++i)
+						{
+							buffer[1+i] = hexToBin(hex[i*2+1], hex[i*2+2]);
+						}
+						mesh.write(buffer, 'S', sizeof(buffer), node_id);
+						printf_P(PSTR("Schedule message sent to node: %d.\r\n"), node_id);
+						dat_p = http200ok();
+						dat_p = es.ES_fill_tcp_data_p(buf, dat_p, PSTR("<h1>200 OK</h1>"));
+					}
+					else
+					{
+						dat_p = es.ES_fill_tcp_data_p(buf, 0,PSTR("HTTP/1.0 400 Bad request\r\nContent-Type: text/html\r\n\r\n<h1>400 Illegal subcommand in schedule.</h1>"));
+					}
 				}
 				else
 				{
-					dat_p = es.ES_fill_tcp_data_p(buf, 0,PSTR("HTTP/1.0 401 Unauthorized\r\nContent-Type: text/html\r\n\r\n<h1>401 Unauthorized</h1>"));
+					dat_p = es.ES_fill_tcp_data_p(buf, 0,PSTR("HTTP/1.0 400 Bad request\r\nContent-Type: text/html\r\n\r\n<h1>400 Illegal command.</h1>"));
 				}
 			}
 			else
@@ -269,9 +343,9 @@ public:
 			es.ES_www_server_reply(buf, dat_p); // send web page data
 		}
 
-		// 3 percenként újra próbáljuk beállítani a pontos idõt
+		// 5 másodpercenként újra próbáljuk beállítani a pontos idõt
 		time_t nnn = now();
-		if (year() <= 2013 && nnn - startTime > 180)
+		if (year() <= 2013 && nnn - startTime > 5)
 		{
 			startTime = nnn;
 			es.ES_client_ntp_request(buf, ntpip, 247); // TODO: 25000 was heres
