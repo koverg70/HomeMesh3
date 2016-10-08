@@ -14,8 +14,8 @@ EtherShield es;
 static uint8_t mymac[6] = { 0x54, 0x55, 0x58, 0x10, 0x00, 0x24 };
 static uint8_t myip[4] = { 10, 0, 0, 190 };
 static uint8_t gwip[4] = { 10, 0, 0, 1 };
-static uint8_t ntpip[4] = { 193, 224, 45, 107 };
-//static uint8_t ntpip[4] = { 95, 215, 175, 2 };
+//static uint8_t ntpip[4] = { 193, 224, 45, 107 };
+static uint8_t ntpip[4] = { 95, 215, 175, 2 };
 
 #define BUFFER_SIZE 3750					// on atmega 328 (2KB RAM) max is 750, on 2560 (8KB RAM) it can safely be 3750
 static uint8_t buf[BUFFER_SIZE + 1];
@@ -40,20 +40,29 @@ private:
 	time_t lastTimeRequest;
 	int ntpUpdateMinutes = 5;
 
+	uint16_t reportError(uint16_t dat_p, char result[200], uint16_t node_id, const char* msg) {
+		dat_p = http200ok();
+		sprintf(result,
+				"{\"status\":\"ERR\", \"node\":\"%d\", \"message\":\"%s\"}",
+				node_id, msg);
+		dat_p = es.ES_fill_tcp_data(buf, dat_p, result);
+		return dat_p;
+	}
+
 public:
 	Ethernet(SensorStore *sensors_) {
 		sensors = sensors_;
 		addressTimer = 0;
 
 		printf_P(PSTR("mac && ip init start\r\n"));
-		delay(200);
+		delay(1000);
 		es.ES_enc28j60Init(mymac);
 		// init the ethernet/ip layer:
 		es.ES_init_ip_arp_udp_tcp(mymac, myip, 80);
 		es.ES_client_set_gwip(gwip);
 		printf_P(PSTR("mac && ip set\r\n"));
-		delay(400);
-		setTime(10);
+		delay(2000);
+		setTime(20);
 		lastTimeAdjust = 0;
 		lastTimeRequest = 0;
 		es.ES_client_ntp_request(buf, ntpip, 247); // TODO: 25000 was here
@@ -261,6 +270,7 @@ public:
 		 * http get */
 		if (dat_p != 0) {
 			// there is a request
+			char result[200];
 
 			// process NTP response
 			if (buf[IP_PROTO_P] == IP_PROTO_UDP_V &&
@@ -306,20 +316,19 @@ public:
 						hex[0] = 'G';
 						if(mesh.write(hex, 'S', 1, node_id))
 						{
-							dat_p = http200ok();
 							char buffer[25];
 							for (int i = 0; i < 12; ++i)
 							{
 								sprintf(buffer+2*i, "%02x", *(schedule.buffer + i));
 							}
-							char result[200];
 							timeDateToText(schedule.receive, timeBuff);
-							sprintf(result, "{\"node\":\"%d\", \"time\":\"%s\", \"schedule\":\"%s\"}", schedule.nodeId, timeBuff, buffer);
+							sprintf(result, "{\"status\":\"OK\", \"node\":\"%d\", \"time\":\"%s\", \"schedule\":\"%s\"}", schedule.nodeId, timeBuff, buffer);
+							dat_p = http200ok();
 							dat_p = es.ES_fill_tcp_data(buf, dat_p, result);
 						}
 						else
 						{
-							dat_p = es.ES_fill_tcp_data_p(buf, dat_p, PSTR("<h1>200 SEND ERROR</h1>"));
+							dat_p = reportError(dat_p, result, node_id, "error sending to node");
 						}
 					}
 					else if (hex[0] == 's' || hex[0] == 'S')
@@ -334,23 +343,23 @@ public:
 						mesh.write(buffer, 'S', sizeof(buffer), node_id);
 						printf_P(PSTR("Schedule message sent to node: %d.\r\n"), node_id);
 						dat_p = http200ok();
-						dat_p = es.ES_fill_tcp_data_p(buf, dat_p, PSTR("<h1>200 OK</h1>"));
+						sprintf(result, "{\"status\":\"OK\", \"node\":\"%d\"}", node_id);
+						dat_p = es.ES_fill_tcp_data(buf, dat_p, result);
 					}
 					else
 					{
-						dat_p = es.ES_fill_tcp_data_p(buf, 0,PSTR("HTTP/1.0 400 Bad request\r\nContent-Type: text/html\r\n\r\n<h1>400 Illegal subcommand in schedule.</h1>"));
+						dat_p = reportError(dat_p, result, node_id, "illegal schedule command");
 					}
 				}
 				else
 				{
-					dat_p = es.ES_fill_tcp_data_p(buf, 0,PSTR("HTTP/1.0 400 Bad request\r\nContent-Type: text/html\r\n\r\n<h1>400 Illegal command.</h1>"));
+					dat_p = reportError(dat_p, result, 0, "invalid URL");
 				}
 			}
 			else
 			{
 				// head, post and other methods:
-				dat_p = http200ok();
-				dat_p = es.ES_fill_tcp_data_p(buf, dat_p, PSTR("<h1>200 OK</h1>"));
+				dat_p = reportError(dat_p, result, 0, "only GET is supported");
 			}
 			es.ES_www_server_reply(buf, dat_p); // send web page data
 		}
@@ -358,7 +367,7 @@ public:
 		// NTP idõ lekérése: ha még nincs "rendes" dátum, akkor mos, ha van, akkor 30 percenként
 		// viszont arra figyel, hogy request-et ne küldjön csak 3 másodpercenként
 		time_t nnn = now();
-		if ((year(nnn) < 2013 || nnn - lastTimeAdjust > 60*ntpUpdateMinutes) && nnn - lastTimeRequest > 2)
+		if ((year(nnn) < 2013 || nnn - lastTimeAdjust > 60*ntpUpdateMinutes) && nnn - lastTimeRequest > 10)
 		{
 			lastTimeRequest = nnn;
 			es.ES_client_ntp_request(buf, ntpip, 247); // TODO: 25000 was heres
