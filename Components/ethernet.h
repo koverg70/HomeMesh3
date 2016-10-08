@@ -15,6 +15,7 @@ static uint8_t mymac[6] = { 0x54, 0x55, 0x58, 0x10, 0x00, 0x24 };
 static uint8_t myip[4] = { 10, 0, 0, 190 };
 static uint8_t gwip[4] = { 10, 0, 0, 1 };
 static uint8_t ntpip[4] = { 193, 224, 45, 107 };
+//static uint8_t ntpip[4] = { 95, 215, 175, 2 };
 
 #define BUFFER_SIZE 3750					// on atmega 328 (2KB RAM) max is 750, on 2560 (8KB RAM) it can safely be 3750
 static uint8_t buf[BUFFER_SIZE + 1];
@@ -35,6 +36,9 @@ private:
 	SensorStore *sensors;
 	uint32_t addressTimer;
 	Schedule schedule;
+	time_t lastTimeAdjust;
+	time_t lastTimeRequest;
+	int ntpUpdateMinutes = 5;
 
 public:
 	Ethernet(SensorStore *sensors_) {
@@ -42,14 +46,16 @@ public:
 		addressTimer = 0;
 
 		printf_P(PSTR("mac && ip init start\r\n"));
-		delay(1000);
+		delay(200);
 		es.ES_enc28j60Init(mymac);
 		// init the ethernet/ip layer:
 		es.ES_init_ip_arp_udp_tcp(mymac, myip, 80);
 		es.ES_client_set_gwip(gwip);
 		printf_P(PSTR("mac && ip set\r\n"));
-		delay(2000);
-		setTime(0);
+		delay(400);
+		setTime(10);
+		lastTimeAdjust = 0;
+		lastTimeRequest = 0;
 		es.ES_client_ntp_request(buf, ntpip, 247); // TODO: 25000 was here
 	}
 
@@ -265,13 +271,19 @@ public:
 				uint32_t time = 0;
 				if (es.ES_client_ntp_process_answer(buf, &time, 247))	// TODO: 25000 was heres
 				{
-					startTime = time - 2208988800UL + (GMT_ZONE * 60 * 60); // 70 years back plus the GTM shift
-					if (IsDST(year(startTime), month(startTime), day(startTime)))
+					time_t oldTime = now();
+					time_t newTime = time - 2208988800UL + (GMT_ZONE * 60 * 60); // 70 years back plus the GTM shift
+					if (IsDST(year(newTime), month(newTime), day(newTime)))
 					{
-						startTime += 60 * 60;	// one hour because it's a daylight saving day
+						newTime += 60 * 60;	// one hour because it's a daylight saving day
 					}
-					setTime(startTime);
-					//Serial.println("Time adjusted with NTP time.");
+					if (year() < 2013) {
+						startTime = newTime;
+					}
+					setTime(newTime);
+					lastTimeAdjust = newTime;
+					timeDateToText(newTime, timeBuff);
+					printf_P(PSTR("Time adjusted with NTP time: %s, time diff: %ld\r\n"), timeBuff, (long)(newTime - oldTime));
 				}
 			}
 			else if (strncmp("GET ", (char *) buf + dat_p, 4) == 0)
@@ -343,12 +355,15 @@ public:
 			es.ES_www_server_reply(buf, dat_p); // send web page data
 		}
 
-		// 5 másodpercenként újra próbáljuk beállítani a pontos idõt
+		// NTP idõ lekérése: ha még nincs "rendes" dátum, akkor mos, ha van, akkor 30 percenként
+		// viszont arra figyel, hogy request-et ne küldjön csak 3 másodpercenként
 		time_t nnn = now();
-		if (year() <= 2013 && nnn - startTime > 5)
+		if ((year(nnn) < 2013 || nnn - lastTimeAdjust > 60*ntpUpdateMinutes) && nnn - lastTimeRequest > 2)
 		{
-			startTime = nnn;
+			lastTimeRequest = nnn;
 			es.ES_client_ntp_request(buf, ntpip, 247); // TODO: 25000 was heres
+			timeDateToText(nnn, timeBuff);
+			printf_P(PSTR("NTP time requested: %s\r\n"), timeBuff);
 		}
 	}
 };
