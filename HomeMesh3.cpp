@@ -16,7 +16,10 @@
 
 //# define PSTR(s) (__extension__({static char __c[] PROGMEM = (s); &__c[0];}))
 
-#define LED_PIN 		2	// the status LED pin
+#define LED_PIN 		A5	// the status LED pin
+#define BATTERY_PIN		A4	// the battery monitor pin
+#define MCU_REF_VOLTAGE	3.3	// the reference voltage of the microcontroller
+#define VOLTAGE_DIVIDER	3	// the voltage divider
 #if NODE_ID != 0
 #define SCHEDULE_PIN 	14	// the relay pin
 #if NODE_ID >= 10 && NODE_ID < 20

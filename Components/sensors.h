@@ -172,6 +172,9 @@ public:
 #ifdef ONEWIRE_PIN
     	initDS();
 #endif
+#ifdef BATTERY_PIN
+    	pinMode(BATTERY_PIN, INPUT);
+#endif
 	}
 
 	const char *name() { return "Sensors"; };
@@ -194,12 +197,16 @@ public:
 			*((uint16_t *)(payload + 1)) = temperature;
 			ok &= mesh.write(&payload, 'V', sizeof(payload), nodeId);
 
+			delay(100);
+
 			payload[0] = 'X';
 			uint16_t humidity = (int16_t)(dht_sensor.humidity * 100);
 			*((uint16_t *)(payload + 1)) = humidity;
 			ok &= mesh.write(&payload, 'V', sizeof(payload), nodeId);
 
-			printf("Temperature: %d, Humidity: %d, ", temperature, humidity);
+			delay(100);
+
+			printf("Temperature: %d, Humidity: %d, \r\n", temperature, humidity);
 #endif
 
 #ifdef ONEWIRE_PIN
@@ -210,9 +217,31 @@ public:
 					uint16_t temperature = (int16_t) (DS[i].temp * 100);
 					*((uint16_t *)(payload + 1)) = temperature;
 					ok &= mesh.write(&payload, 'V', sizeof(payload), nodeId);
-					printf("DS18B20 temperature: %d, ", temperature);
+
+					delay(100);
+
+					printf("DS18B20 temperature: %d, \r\n", temperature);
 				}
 			}
+#endif
+
+#ifdef BATTERY_PIN
+			float val = 0;
+			for (int i = 0; i < 4; ++i) {
+				val += analogRead(BATTERY_PIN);
+			}
+			// average
+			val = val / 4;
+			// the result should be voltage * 100
+			val = (val * VOLTAGE_DIVIDER * MCU_REF_VOLTAGE) / (1023/100);
+			payload[0] = '0';
+			uint16_t battery = val;
+			*((uint16_t *)(payload + 1)) = battery;
+			ok &= mesh.write(&payload, 'V', sizeof(payload), nodeId);
+
+			delay(100);
+
+			printf("Battery voltage: %d, \r\n", battery);
 #endif
 
 			// FIXIT: a státusz (ok) kezelése
