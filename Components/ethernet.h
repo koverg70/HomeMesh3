@@ -12,8 +12,8 @@
 
 EtherShield es;
 static uint8_t mymac[6] = { 0x54, 0x55, 0x58, 0x10, 0x00, 0x24 };
-static uint8_t myip[4] = { 10, 0, 0, 190 };
-static uint8_t gwip[4] = { 10, 0, 0, 1 };
+static uint8_t myip[4] = { 192, 168, 1, 190 };
+static uint8_t gwip[4] = { 192, 168, 1, 1 };
 //static uint8_t ntpip[4] = { 193, 224, 45, 107 };
 static uint8_t ntpip[4] = { 95, 215, 175, 2 };
 
