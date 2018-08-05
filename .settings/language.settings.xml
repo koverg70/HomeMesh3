@@ -1,43 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project>
-	<configuration id="it.baeyens.arduino.core.toolChain.release.1990652656" name="Node_1">
+	<configuration id="io.sloeber.core.toolChain.release.1130103913" name="Node_XX">
 		<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
 			<provider copy-of="extension" id="org.eclipse.cdt.ui.UserLanguageSettingsProvider"/>
 			<provider-reference id="org.eclipse.cdt.core.ReferencedProjectsLanguageSettingsProvider" ref="shared-provider"/>
-			<provider class="it.baeyens.arduino.toolchain.ArduinoLanguageProvider" console="false" env-hash="-616181158238350079" id="it.baeyens.arduino.languageSettingsProvider" keep-relative-paths="false" name="Arduino Compiler Settings" parameter="${COMMAND} -E -P -v -dD &quot;${INPUTS}&quot;" prefer-non-shared="true">
-				<language-scope id="org.eclipse.cdt.core.gcc"/>
-				<language-scope id="org.eclipse.cdt.core.g++"/>
-			</provider>
-			<provider-reference id="org.eclipse.cdt.managedbuilder.core.MBSLanguageSettingsProvider" ref="shared-provider"/>
-		</extension>
-	</configuration>
-	<configuration id="it.baeyens.arduino.core.toolChain.release.1990652656.535330854" name="Master">
-		<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
-			<provider copy-of="extension" id="org.eclipse.cdt.ui.UserLanguageSettingsProvider"/>
-			<provider-reference id="org.eclipse.cdt.core.ReferencedProjectsLanguageSettingsProvider" ref="shared-provider"/>
-			<provider class="it.baeyens.arduino.toolchain.ArduinoLanguageProvider" console="false" env-hash="-616181158238350079" id="it.baeyens.arduino.languageSettingsProvider" keep-relative-paths="false" name="Arduino Compiler Settings" parameter="${COMMAND} -E -P -v -dD &quot;${INPUTS}&quot;" prefer-non-shared="true">
-				<language-scope id="org.eclipse.cdt.core.gcc"/>
-				<language-scope id="org.eclipse.cdt.core.g++"/>
-			</provider>
-			<provider-reference id="org.eclipse.cdt.managedbuilder.core.MBSLanguageSettingsProvider" ref="shared-provider"/>
-		</extension>
-	</configuration>
-	<configuration id="it.baeyens.arduino.core.toolChain.release.1990652656.535330854.338778429" name="Master_ESP">
-		<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
-			<provider copy-of="extension" id="org.eclipse.cdt.ui.UserLanguageSettingsProvider"/>
-			<provider-reference id="org.eclipse.cdt.core.ReferencedProjectsLanguageSettingsProvider" ref="shared-provider"/>
-			<provider class="it.baeyens.arduino.toolchain.ArduinoLanguageProvider" console="false" env-hash="-616181158238350079" id="it.baeyens.arduino.languageSettingsProvider" keep-relative-paths="false" name="Arduino Compiler Settings" parameter="${COMMAND} -E -P -v -dD &quot;${INPUTS}&quot;" prefer-non-shared="true">
-				<language-scope id="org.eclipse.cdt.core.gcc"/>
-				<language-scope id="org.eclipse.cdt.core.g++"/>
-			</provider>
-			<provider-reference id="org.eclipse.cdt.managedbuilder.core.MBSLanguageSettingsProvider" ref="shared-provider"/>
-		</extension>
-	</configuration>
-	<configuration id="it.baeyens.arduino.core.toolChain.release.1990652656.930333027" name="Node_10">
-		<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
-			<provider copy-of="extension" id="org.eclipse.cdt.ui.UserLanguageSettingsProvider"/>
-			<provider-reference id="org.eclipse.cdt.core.ReferencedProjectsLanguageSettingsProvider" ref="shared-provider"/>
-			<provider class="it.baeyens.arduino.toolchain.ArduinoLanguageProvider" console="false" env-hash="-616181158238350079" id="it.baeyens.arduino.languageSettingsProvider" keep-relative-paths="false" name="Arduino Compiler Settings" parameter="${COMMAND} -E -P -v -dD &quot;${INPUTS}&quot;" prefer-non-shared="true">
+			<provider class="io.sloeber.core.toolchain.ArduinoLanguageProvider" console="false" env-hash="-1482293371985624692" id="io.sloeber.languageSettingsProvider" keep-relative-paths="false" name="Arduino Compiler Settings" parameter="${COMMAND} -E -P -v -dD -D__IN_ECLIPSE__ &quot;${INPUTS}&quot;" prefer-non-shared="true">
 				<language-scope id="org.eclipse.cdt.core.gcc"/>
 				<language-scope id="org.eclipse.cdt.core.g++"/>
 			</provider>

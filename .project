@@ -6,7 +6,7 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>it.baeyens.arduino.core.inoToCpp</name>
+			<name>io.sloeber.core.inoToCpp</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
@@ -28,63 +28,48 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
-		<nature>it.baeyens.arduinonature</nature>
+		<nature>io.sloeber.arduinonature</nature>
 	</natures>
 	<linkedResources>
 		<link>
 			<name>core/core</name>
 			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/packages/arduino/hardware/avr/1.6.11/cores/arduino</location>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/arduino/hardware/avr/1.6.20/cores/arduino</locationURI>
 		</link>
 		<link>
 			<name>core/variant</name>
 			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/packages/arduino/hardware/avr/1.6.11/variants/mega</location>
-		</link>
-		<link>
-			<name>libraries/ESP8266WebServer</name>
-			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266WebServer</location>
-		</link>
-		<link>
-			<name>libraries/ESP8266WiFi</name>
-			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266WiFi</location>
-		</link>
-		<link>
-			<name>libraries/ESP8266mDNS</name>
-			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/packages/esp8266/hardware/esp8266/2.3.0/libraries/ESP8266mDNS</location>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/arduino/hardware/avr/1.6.20/variants/eightanaloginputs</locationURI>
 		</link>
 		<link>
 			<name>libraries/OneWire</name>
 			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/libraries/OneWire/2.3.2</location>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/OneWire/2.3.3</locationURI>
 		</link>
 		<link>
 			<name>libraries/RF24</name>
 			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/libraries/RF24/1.1.6</location>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/RF24/1.3.0</locationURI>
 		</link>
 		<link>
 			<name>libraries/RF24Mesh</name>
 			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/libraries/RF24Mesh/1.0.51</location>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/RF24Mesh/1.0.51</locationURI>
 		</link>
 		<link>
 			<name>libraries/RF24Network</name>
 			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/libraries/RF24Network/1.0.6</location>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/RF24Network/1.0.8</locationURI>
 		</link>
 		<link>
 			<name>libraries/SPI</name>
 			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/packages/arduino/hardware/avr/1.6.11/libraries/SPI</location>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/arduino/hardware/avr/1.6.20/libraries/SPI</locationURI>
 		</link>
 		<link>
 			<name>libraries/Time</name>
 			<type>2</type>
-			<location>C:/java/eclipseArduino/arduinoPlugin/libraries/Time/1.5.0</location>
+			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/Time/1.5.0</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
