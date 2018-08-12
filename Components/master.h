@@ -25,6 +25,8 @@ typedef struct
 	uint8_t 	nodeId;
 	uint16_t	nodeAddress;
 	uint8_t 	sensorCount;
+
+	// TODO: registeredTime, errorCount
 } NodeData;
 
 class SensorStore
@@ -77,6 +79,26 @@ public:
 		}
 	}
 
+	void updateNode(uint8_t nodeId, boolean newSensor) {
+		boolean foundNode = false;
+		for (int i = 0; i < nodeCount; ++i) {
+			if (nodes[i]->nodeId == nodeId) {
+				foundNode = true;
+				nodes[i]->nodeAddress = mesh.getAddress(nodeId);
+				if (newSensor) {
+					++(nodes[i]->sensorCount);
+				}
+			}
+		}
+		if (!foundNode) {
+			NodeData *nd = new NodeData();
+			nd->nodeId = nodeId;
+			nd->nodeAddress = mesh.getAddress(nodeId);
+			nd->sensorCount = 1;
+			nodes[nodeCount++] = nd;
+		}
+	}
+
 	SensorData *storeData(RF24NetworkHeader header, uint8_t *payload) {
 		SensorData *sd = new SensorData();
 		uint16_t nodeId = mesh.getNodeID(header.from_node);
@@ -91,7 +113,8 @@ public:
 			//printf_P(PSTR("Time: %s Node:%d sensor:%c value:%d\r\n"), buffer, sd->nodeId, sd->sensorType, sd->value);
 			int i;
 
-			boolean sensorStored = false;
+			boolean sensorStored = false; // already exist
+			boolean newSensor = false;
 			for (i = 0; i < sensorCount; ++i) {
 				if (sensors[i]->nodeId == sd->nodeId && sensors[i]->sensorType == sd->sensorType) {
 					if (sensors[i] != NULL) {
@@ -105,10 +128,13 @@ public:
 				if (sensorCount < maxSensors) {
 					sensors[sensorCount++] = sd;
 					sensorStored = true;
+					newSensor = true;
 				}
 				// new sensor detected, we should update node list
-				updateNodes();
+				// TODO: ez mikor is kell??? updateNodes();
 			}
+
+			updateNode(sd->nodeId, newSensor);
 
 			if (sensorStored) {
 				return sd;

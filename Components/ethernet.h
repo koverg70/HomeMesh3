@@ -129,74 +129,83 @@ public:
 				"\r\n")));
 	}
 
-	uint16_t print_webpage(uint8_t *buf, uint8_t node_id, const char *stype)
+	uint16_t print_node_values(uint8_t *buf, uint8_t node_id, const char *stype)
 	{
 		time_t nnn = now();
 		uint16_t plen;
 		plen = http200ok();
+
 		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("{\"time\": \""));
 		timeDateToText(nnn, timeBuff);
 		plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
 		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"start\": \""));
 		timeDateToText(startTime, timeBuff);
 		plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"count\": \""));
+		itoa(sensors->getSensorCount(), timeBuff, 10);
+		plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+
 		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"sensors\": ["));
 		int sensCount = 0;
 
 		if (sensors != NULL)
 		{
-			for (int j = 0; j < sensors->getNodeCount(); ++j)
+			for (int i = 0; i < sensors->getSensorCount(); ++i)
 			{
-				NodeData *node = sensors->getNodes()[j];
+				/*
+				uint8_t		nodeId;			// the node that collected the data
+				char		sensorType;		// A,B,C,D,E,F,G,H,I,J - temperature, X,Y,Z - humidity, 0,1,2,3,4,5,6,7,8,9 - other values
+				time_t 		lastUpdate; 	// the date and time of the last sensor message
+				uint16_t	value;			// the sensor value
+				uint16_t	extra;			// extra data (if value cannot be stored on 16 bit)
+				*/
+
+
+				SensorData * sensor = (sensors->getSensors())[i];
+				if ((stype == NULL || stype[0] == '*' || stype[0] == sensor->sensorType) && (node_id == 0 || sensor->nodeId == node_id))
 				{
-					for (int i = 0; i < sensors->getSensorCount(); ++i)
+					//itoa(i, timeBuff, 10);
+					//plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(", \r\ns"));
+					//plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+					//plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(": {"));
+					if (sensCount++ != 0)
 					{
-						/*
-						uint8_t		nodeId;			// the node that collected the data
-						char		sensorType;		// A,B,C,D,E,F,G,H,I,J - temperature, X,Y,Z - humidity, 0,1,2,3,4,5,6,7,8,9 - other values
-						time_t 		lastUpdate; 	// the date and time of the last sensor message
-						uint16_t	value;			// the sensor value
-						uint16_t	extra;			// extra data (if value cannot be stored on 16 bit)
-						*/
-
-
-						SensorData * sensor = (sensors->getSensors())[i];
-						if ((stype == NULL || stype[0] == '*' || stype[0] == sensor->sensorType) && (node_id == 0 || node->nodeId == node_id))
-						{
-							//itoa(i, timeBuff, 10);
-							//plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(", \r\ns"));
-							//plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
-							//plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(": {"));
-							if (sensCount++ != 0)
-							{
-								plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(", "));
-							}
-							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\r\n{"));
-
-							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\"n\": \""));
-							itoa(sensor->nodeId, timeBuff, 10);
-							plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
-
-							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"lu\": \""));
-							itoa(nnn - sensor->lastUpdate, timeBuff, 10);
-							plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
-
-							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"t\": \""));
-							timeBuff[0] = sensor->sensorType;
-							timeBuff[1] = 0;
-							plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
-
-							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"v\": \""));
-							itoa(sensor->value, timeBuff, 10);
-							plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
-
-							plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"e\": \""));
-							itoa(sensor->extra, timeBuff, 10);
-							plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
-
-							plen = es.ES_fill_tcp_data_p(buf, plen, PSTR("\"}"));
-						}
+						plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(", "));
 					}
+					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\r\n{"));
+
+					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\"n\": \""));
+					itoa(sensor->nodeId, timeBuff, 10);
+					plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"lu\": \""));
+					itoa(nnn - sensor->lastUpdate, timeBuff, 10);
+					plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"t\": \""));
+					timeBuff[0] = sensor->sensorType;
+					timeBuff[1] = 0;
+					plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"v\": \""));
+					itoa(sensor->value, timeBuff, 10);
+					plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+					plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"e\": \""));
+					itoa(sensor->extra, timeBuff, 10);
+					plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+					//if (node_id != 0) {
+						// only if a concrete node is specified
+						//plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"a\": \""));
+						//itoa(sensor->address, timeBuff, 10);
+						//plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+					//}
+
+					plen = es.ES_fill_tcp_data_p(buf, plen, PSTR("\"}"));
 				}
 			}
 		}
@@ -221,6 +230,54 @@ public:
 		return plen;
 	}
 
+	uint16_t print_node_props(uint8_t *buf, uint8_t node_id)
+	{
+		time_t nnn = now();
+		uint16_t plen;
+		plen = http200ok();
+		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("{\"time\": \""));
+		timeDateToText(nnn, timeBuff);
+		plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"start\": \""));
+		timeDateToText(startTime, timeBuff);
+		plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+
+		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"count\": \""));
+		itoa(sensors->getNodeCount(), timeBuff, 10);
+		plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"nodes\": ["));
+
+		for (int j = 0; j < sensors->getNodeCount(); ++j)
+		{
+			NodeData *node = sensors->getNodes()[j];
+
+			if (j > 0)
+			{
+				plen = es.ES_fill_tcp_data_p(buf,plen, PSTR(", "));
+			}
+
+			plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\r\n{"));
+			plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\"id\": \""));
+			itoa(node->nodeId, timeBuff, 10);
+			plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+			plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"sc\": \""));
+			itoa(node->sensorCount, timeBuff, 10);
+			plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+			plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\", \"ad\": \""));
+			itoa(node->nodeAddress, timeBuff, 8);
+			plen = es.ES_fill_tcp_data(buf,plen, timeBuff);
+
+			plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\"}"));
+		}
+
+		plen = es.ES_fill_tcp_data_p(buf,plen, PSTR("\r\n]}"));
+
+		return plen;
+	}
 
 	boolean receiveMessage(RF24NetworkHeader header, uint8_t *payload) {
 		if (header.type == 'S') {	// schedule receive
@@ -304,7 +361,13 @@ public:
 					char sensor[4];
 					uint16_t node_id;
 					sscanf((char *)buf + dat_p + 6, "%d:%3s", &node_id, sensor);
-					dat_p = print_webpage(buf, node_id, sensor);
+					dat_p = print_node_values(buf, node_id, sensor);
+				}
+				else if (strncmp("/N", (char *) buf + dat_p + 4, 2) == 0)
+				{
+					uint16_t node_id;
+					sscanf((char *)buf + dat_p + 6, "%d:%3s", &node_id);
+					dat_p = print_node_props(buf, node_id);
 				}
 				else if (strncmp("/S", (char *) buf + dat_p + 4, 2) == 0)
 				{
